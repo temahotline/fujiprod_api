@@ -1,4 +1,3 @@
-"""File with settings and configs for the project"""
 from envparse import Env
 
 env = Env()
