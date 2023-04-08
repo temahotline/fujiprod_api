@@ -3,11 +3,9 @@ import uuid
 from enum import Enum
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import Column, String, Date
+from sqlalchemy import Column, String, Date, ForeignKey
 from sqlalchemy import Enum as SQLAlchemyEnum
-
-
-Base = declarative_base()
+from src.database import Base
 
 
 class SignUpSource(str, Enum):

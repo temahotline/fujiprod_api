@@ -1,13 +1,13 @@
 import uuid
 
 from enum import Enum
-from sqlalchemy import Column, String, ForeignKey, Integer, Date
+from sqlalchemy import (Column, String, ForeignKey,
+                        Integer, Date, Boolean, Text)
 from sqlalchemy import Enum as SQLAlchemyEnum
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
-
-Base = declarative_base()
+from src.database import Base
 
 
 class ReleaseType(Enum):
@@ -54,7 +54,13 @@ class Track(Base):
     )
     title = Column(String, nullable=False,)
     artist = Column(String, nullable=False,)
+    music_writer = Column(String, nullable=False,)
+    text_writer = Column(String, nullable=False,)
     track = Column(String, nullable=False,)
     number_on_tracklist = Column(Integer, nullable=False,)
+    tiktok_timing = Column(Integer, default=0,)
+    explicit_content = Column(Boolean, nullable=False,)
+    text = Column(Text, nullable=True)
+    karaoke_text = Column(String, nullable=True)
     isrc = Column(String, nullable=True,)
-    release = relationship("Release", back_populates="tracks")
+    release = relationship("Release", back_populates="tracks",)
