@@ -1,4 +1,24 @@
-from fastapi import FastAPI
+import sentry_sdk
+import uvicorn
 
-app = FastAPI(title="")
+from fastapi import FastAPI, APIRouter
 
+from src import settings
+from src.users.router import users_router
+
+
+# sentry_sdk.init(
+#     dsn=settings.SENTRY_URL,
+#     traces_sample_rate=1.0,
+# )
+
+app = FastAPI(title="fujiprod_api")
+
+main_api_router = APIRouter()
+
+main_api_router.include_router(users_router, prefix="/users", tags=["users"],)
+app.include_router(main_api_router )
+
+if __name__ == "__main__":
+    # run app on the host and port
+    uvicorn.run(app, host="0.0.0.0", port=settings.APP_PORT)
