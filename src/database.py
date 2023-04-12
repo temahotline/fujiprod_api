@@ -2,8 +2,8 @@ from typing import Generator
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from src.settings import REAL_DATABASE_URL
 from sqlalchemy.ext.declarative import declarative_base
+from src.settings import REAL_DATABASE_URL
 
 
 Base = declarative_base()

@@ -10,23 +10,26 @@ from sqlalchemy.dialects.postgresql import UUID
 from src.database import Base
 
 
-class ReleaseType(Enum):
-    SINGLE = "single"
-    EP = "ep"
-    LP = "lp"
-    MIXTAPE = "mixtape"
+class ReleaseType(str, Enum):
+    SINGLE = "SINGLE"
+    EP = "EP"
+    LP = "LP"
+    MIXTAPE = "MIXTAPE"
 
 
 class Release(Base):
-    __tablename__ = "releases"
+    __tablename__ = "release"
 
     release_id = Column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4(),
     )
     user_id = Column(
-        UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=False,
+        UUID(as_uuid=True), ForeignKey("user.user_id"), nullable=False,
     )
-
+    licensor_id = Column(
+        UUID(as_uuid=True), ForeignKey("licensor.licensor_id"),
+        nullable=False,
+    )
     release_type = Column(
         SQLAlchemyEnum(ReleaseType, name="release_type"), nullable=False,
     )
@@ -35,21 +38,29 @@ class Release(Base):
     release_date = Column(Date, nullable=True,)
     on_sale_date = Column(Date, nullable=False,)
     cover = Column(String, nullable=False,)
-    tracks = relationship("Track", back_populates="release",)
-    genre = Column(String, nullable=False,)  # нужно будет создать модель жанра
-    upc = Column(String, nullable=True,)
-    user = relationship("User", back_populates="releases",)
+    genre = Column(String, nullable=False, )  # нужно будет создать модель жанра
+    upc = Column(String, nullable=True, )
+
+    tracks = relationship(
+        "Track", back_populates="release", lazy="joined",
+    )
+    user = relationship(
+        "User", back_populates="releases", lazy="joined",
+    )
+    licensor = relationship(
+        "Licensor", back_populates="releases", lazy="joined",
+    )
 
 
 class Track(Base):
-    __tablename__ = "tracks"
+    __tablename__ = "track"
 
     track_id = Column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4(),
     )
     release_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("releases.release_id"),
+        ForeignKey("release.release_id"),
         nullable=False,
     )
     title = Column(String, nullable=False,)
@@ -63,4 +74,7 @@ class Track(Base):
     text = Column(Text, nullable=True)
     karaoke_text = Column(String, nullable=True)
     isrc = Column(String, nullable=True,)
-    release = relationship("Release", back_populates="tracks",)
+
+    release = relationship(
+        "Release", back_populates="tracks", lazy="joined",
+    )
