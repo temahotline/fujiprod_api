@@ -2,11 +2,16 @@ from uuid import UUID
 from logging import getLogger
 from fastapi import APIRouter, Depends
 
-from users.actions import (_create_new_user, _get_user_by_id,
-                           _create_new_licensor, _get_licensor_by_id)
-from users.schemas import (UserCreate, ShowUser, LicensorCreate,
-                           ShowLicensor)
-from database import AsyncSession, get_db
+from src.users.actions import (_create_new_user,
+                               _get_user_by_id,
+                               _create_new_licensor,
+                               _get_licensor_by_id)
+from src.users.schemas import (UserCreate,
+                               ShowUser,
+                               LicensorCreate,
+                               ShowLicensor)
+from src.database import AsyncSession, get_db
+
 
 logger = getLogger(__name__)
 

@@ -17,8 +17,8 @@ if config.config_file_name is not None:
 # add your model's MetaData object here
 # for 'autogenerate' support
 from src.database import Base
-from src.users.models import User, Licensor
-from src.releases.models import Release, Track
+from src.users.models import User, Licensor, SignUpSource
+from src.releases.models import Release, Track, ReleaseType
 target_metadata = Base.metadata
 # target_metadata = None
 

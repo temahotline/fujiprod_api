@@ -14,7 +14,8 @@ class ReleaseDAL:
 
     async def create_release(
         self,
-        user_id: uuid.UUID,
+        user_id: UUID,
+        licensor_id: UUID,
         release_type: ReleaseType,
         title: str,
         artist: str,
@@ -26,6 +27,7 @@ class ReleaseDAL:
     ) -> Release:
         new_release = Release(
             user_id=user_id,
+            licensor_id=licensor_id,
             release_type=release_type,
             title=title,
             artist=artist,

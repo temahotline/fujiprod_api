@@ -21,7 +21,7 @@ class Release(Base):
     __tablename__ = "release"
 
     release_id = Column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4(),
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4,
     )
     user_id = Column(
         UUID(as_uuid=True), ForeignKey("user.user_id"), nullable=False,
@@ -56,7 +56,7 @@ class Track(Base):
     __tablename__ = "track"
 
     track_id = Column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4(),
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4,
     )
     release_id = Column(
         UUID(as_uuid=True),

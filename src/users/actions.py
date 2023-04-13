@@ -1,7 +1,8 @@
 from uuid import UUID
-from users.dals import UserDAL, LicensorDAL
-from users.schemas import UserCreate, ShowUser
-from users.schemas import LicensorCreate, ShowLicensor
+from src.users.dals import UserDAL, LicensorDAL
+from src.users.schemas import UserCreate, ShowUser
+from src.users.schemas import LicensorCreate, ShowLicensor
+from src.users.models import User
 
 
 async def _create_new_user(body: UserCreate, session) -> ShowUser:
@@ -37,9 +38,11 @@ async def _create_new_licensor(body: LicensorCreate, session) -> ShowLicensor:
             passport_issue_date=body.passport_issue_date,
             registration=body.registration,
         )
+        user = await session.get(User, licensor.user_id)
         return ShowLicensor(
             licensor_id=licensor.licensor_id,
             user_id=licensor.user_id,
+            user=user,
             full_name=licensor.full_name,
             birthday=licensor.birthday,
             passport_number=licensor.passport_number,

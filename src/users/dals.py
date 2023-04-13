@@ -4,7 +4,7 @@ from typing import Union
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from users.models import User, Licensor
+from src.users.models import User, Licensor
 
 
 class UserDAL:

@@ -5,7 +5,9 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import Column, String, Date, ForeignKey
 from sqlalchemy import Enum as SQLAlchemyEnum
+
 from src.database import Base
+from src.releases.models import Release
 
 
 class SignUpSource(str, Enum):
@@ -18,7 +20,7 @@ class User(Base):
     __tablename__ = "user"
 
     user_id = Column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4(),
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4,
     )
     sign_up_source = Column(SQLAlchemyEnum(
         SignUpSource, name="sign_up_source"), nullable=False,
@@ -33,7 +35,7 @@ class Licensor(Base):
     __tablename__ = "licensor"
 
     licensor_id = Column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4(),
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4,
     )
     user_id = Column(
         UUID(as_uuid=True), ForeignKey("user.user_id"), nullable=False,

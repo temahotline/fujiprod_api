@@ -4,7 +4,8 @@ import uvicorn
 from fastapi import FastAPI, APIRouter
 
 import settings
-from users.router import users_router, licensor_router
+from src.users.router import users_router, licensor_router
+from src.releases.router import releases_router, tracks_router
 
 
 # sentry_sdk.init(
@@ -20,6 +21,11 @@ main_api_router.include_router(
     users_router, prefix="/users", tags=["users"],)
 main_api_router.include_router(
     licensor_router, prefix="/licensor", tags=["licensor"],)
+main_api_router.include_router(
+    releases_router, prefix="/releases", tags=["releases"],)
+main_api_router.include_router(
+    tracks_router, prefix="/tracks", tags=["tracks"]
+)
 app.include_router(main_api_router)
 
 if __name__ == "__main__":
