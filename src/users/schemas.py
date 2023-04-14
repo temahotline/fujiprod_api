@@ -1,6 +1,6 @@
 import uuid
 from datetime import date
-
+from typing import Optional
 from pydantic import BaseModel
 
 
@@ -19,23 +19,3 @@ class ShowUser(TunedModel):
 class UserCreate(BaseModel):
     sign_up_source: str
     id_on_source: str
-
-
-class ShowLicensor(TunedModel):
-    licensor_id: uuid.UUID
-    user_id: uuid.UUID
-    full_name: str
-    birthday: date
-    passport_number: str
-    passport_issue_date: date
-    registration: str
-    user: ShowUser
-
-
-class LicensorCreate(BaseModel):
-    user_id: uuid.UUID
-    full_name: str
-    birthday: date
-    passport_number: str
-    passport_issue_date: date
-    registration: str

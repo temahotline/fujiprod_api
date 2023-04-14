@@ -3,14 +3,12 @@ from fastapi import APIRouter, Depends
 
 from src.releases.actions import (_create_new_release,
                                   _get_release_by_id,
-                                  _get_track_by_id,
-                                  _create_new_track)
+                                  _update_release)
 from src.releases.schemas import (ReleaseCreate, ShowRelease,
-                                  TrackCreate, ShowTrack)
+                                  UpdatedReleaseResponse)
 from src.database import AsyncSession, get_db
 
 releases_router = APIRouter()
-tracks_router = APIRouter()
 
 
 @releases_router.post("/", response_model=ShowRelease)
@@ -29,17 +27,15 @@ async def show_release(
     return await _get_release_by_id(release_id, db)
 
 
-@tracks_router.post("/", response_model=ShowTrack)
-async def create_track(
-    body: TrackCreate,
-    db: AsyncSession = Depends(get_db),
-) -> ShowTrack:
-    return await _create_new_track(body, db)
-
-
-@tracks_router.get("/{track_id}", response_model=ShowTrack)
-async def show_track(
-    track_id: UUID,
-    db: AsyncSession = Depends(get_db),
-) -> ShowTrack:
-    return await _get_track_by_id(track_id, db)
+@releases_router.patch("/{release_id}")
+async def update_release_by_id(
+        release_id: UUID,
+        body: UpdatedReleaseResponse,
+        db: AsyncSession = Depends(get_db),
+) -> UUID:
+    updated_release_params = body.dict(exclude_unset=True)
+    return await _update_release(
+        updated_release_params=updated_release_params,
+        release_id=release_id,
+        session=db
+    )

@@ -1,6 +1,6 @@
 from uuid import UUID
 from datetime import date
-from typing import List, Optional
+from typing import Optional
 from pydantic import BaseModel
 
 from src.releases.models import ReleaseType
@@ -39,32 +39,14 @@ class ReleaseCreate(BaseModel):
     upc: Optional[str]
 
 
-class ShowTrack(TunedModel):
-    track_id: UUID
-    release_id: UUID
-    title: str
-    artist: str
-    music_writer: str
-    text_writer: str
-    track: str
-    number_on_tracklist: int
-    tiktok_timing: int
-    explicit_content: bool
-    text: Optional[str]
-    karaoke_text: Optional[str]
-    isrc: Optional[str]
-
-
-class TrackCreate(BaseModel):
-    release_id: UUID
-    title: str
-    artist: str
-    music_writer: str
-    text_writer: str
-    track: str
-    number_on_tracklist: int
-    tiktok_timing: int
-    explicit_content: bool
-    text: Optional[str]
-    karaoke_text: Optional[str]
-    isrc: Optional[str]
+class UpdatedReleaseResponse(BaseModel):
+    user_id: Optional[UUID] = None
+    licensor_id: Optional[UUID] = None
+    release_type: Optional[ReleaseType] = None
+    title: Optional[str] = None
+    artist: Optional[str] = None
+    release_date: Optional[date] = None
+    on_sale_date: Optional[date] = None
+    cover: Optional[str] = None
+    genre: Optional[str] = None
+    upc: Optional[str] = None

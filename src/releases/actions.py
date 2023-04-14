@@ -1,8 +1,7 @@
 from uuid import UUID
 
-from src.releases.dals import ReleaseDAL, TrackDAL
-from src.releases.schemas import (ReleaseCreate, ShowRelease,
-                                  TrackCreate, ShowTrack)
+from src.releases.dals import ReleaseDAL
+from src.releases.schemas import ReleaseCreate, ShowRelease
 
 
 async def _create_new_release(body: ReleaseCreate, session) -> ShowRelease:
@@ -31,29 +30,14 @@ async def _get_release_by_id(release_id: UUID, session) -> ShowRelease:
             return ShowRelease.from_orm(release)
 
 
-async def _create_new_track(body: TrackCreate, session) -> ShowTrack:
+async def _update_release(
+        updated_release_params: dict,
+        release_id: UUID,
+        session) -> UUID:
     async with session.begin():
-        track_dal = TrackDAL(session)
-        track = await track_dal.create_track(
-            release_id=body.release_id,
-            title=body.title,
-            artist=body.artist,
-            music_writer=body.music_writer,
-            text_writer=body.text_writer,
-            track=body.track,
-            number_on_tracklist=body.number_on_tracklist,
-            explicit_content=body.explicit_content,
-            tiktok_timing=body.tiktok_timing,
-            text=body.text,
-            karaoke_text=body.karaoke_text,
-            isrc=body.isrc,
+        release_dal = ReleaseDAL(session)
+        updated_release_id = await release_dal.update_release(
+            release_id, **updated_release_params
         )
-        return ShowTrack.from_orm(track)
-
-
-async def _get_track_by_id(track_id: UUID, session) -> ShowTrack:
-    async with session.begin():
-        track_dal = TrackDAL(session)
-        track = await track_dal.get_track_by_id(track_id)
-        if track is not None:
-            return ShowTrack.from_orm(track)
+        if updated_release_id is not None:
+            return updated_release_id

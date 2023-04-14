@@ -4,8 +4,10 @@ import uvicorn
 from fastapi import FastAPI, APIRouter
 
 import settings
-from src.users.router import users_router, licensor_router
-from src.releases.router import releases_router, tracks_router
+from src.users.router import users_router
+from src.licensor.router import licensor_router
+from src.releases.router import releases_router
+from src.tracks.router import tracks_router
 
 
 # sentry_sdk.init(
