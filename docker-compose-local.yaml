@@ -1,4 +1,4 @@
-version: "3.0"
+version: "3.3"
 services:
   db:
     container_name: "db"
@@ -8,10 +8,27 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
       - custom
+  app:
+    container_name: "app"
+    image: temahotline/fujiprod_api:latest
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - custom
+
+
 networks:
   custom:
     driver: bridge
+
+volumes:
+  db-data:

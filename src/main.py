@@ -3,7 +3,7 @@ import uvicorn
 
 from fastapi import FastAPI, APIRouter
 
-import settings
+from src import settings
 from src.users.router import users_router
 from src.licensor.router import licensor_router
 from src.releases.router import releases_router
@@ -14,6 +14,8 @@ from src.tracks.router import tracks_router
 #     dsn=settings.SENTRY_URL,
 #     traces_sample_rate=1.0,
 # )
+
+print(f"REAL_DATABASE_URL: {settings.REAL_DATABASE_URL}")
 
 app = FastAPI(title="fujiprod_api")
 
