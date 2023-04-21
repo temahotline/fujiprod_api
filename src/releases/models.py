@@ -42,6 +42,7 @@ class Release(Base):
     cover = Column(String, nullable=False,)
     genre = Column(String, nullable=False,)  # нужно будет создать модель жанра
     upc = Column(String, nullable=True,)
+    is_active = Column(Boolean, nullable=True, default=True,)
 
     tracks = relationship(
         "Track", back_populates="release", lazy="joined",

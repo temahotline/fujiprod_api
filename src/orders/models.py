@@ -13,8 +13,9 @@ from src.database import Base
 class OrderStatus(str, Enum):
     CREATED = "CREATED"
     PROCESSING = "PROCESSING"
-    UNDER_REVIEW = "UNDER_REVIEW"
+    MODERATION = "MODERATION"
     PROBLEM = "PROBLEM"
+    CANCELED = "CANCELED"
     COMPLETED = "COMPLETED"
 
 
@@ -34,11 +35,11 @@ class Order(Base):
     release_id = Column(
         UUID(as_uuid=True),
         ForeignKey("release.release_id"),
-        nullable=False,
+        nullable=True,
     )
     status = Column(SQLAlchemyEnum(OrderStatus, name="order_status"),
-                    default=OrderStatus.CREATED, nullable=False,)
+                    default=OrderStatus.CREATED,)
     created = Column(DateTime, default=datetime.utcnow,)
 
     user = relationship("User", back_populates="orders",)
-    c = relationship("Release", back_populates="order",)
+    release = relationship("Release", back_populates="order",)
