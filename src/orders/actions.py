@@ -1,12 +1,13 @@
 from typing import List, Optional
 from uuid import UUID
 from src.orders.dals import OrderDAL
-from src.orders.schemas import OrderCreate, OrderUpdate, OrderInDB
+from src.orders.schemas import OrderCreate, OrderUpdate, ShowOrder
 from src.orders.models import OrderStatus
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-async def _create_new_order(body: OrderCreate, db: AsyncSession) -> OrderInDB:
+async def _create_new_order(
+        body: OrderCreate, db: AsyncSession) -> UUID:
     async with db as session:
         async with session.begin():
             order_dal = OrderDAL(session)
@@ -14,7 +15,9 @@ async def _create_new_order(body: OrderCreate, db: AsyncSession) -> OrderInDB:
             return order
 
 
-async def _update_order_by_id(order_id: UUID, body: OrderUpdate, db: AsyncSession) -> OrderInDB:
+async def _update_order_by_id(
+        order_id: UUID, body: OrderUpdate, db: AsyncSession
+) -> ShowOrder:
     async with db as session:
         async with session.begin():
             order_dal = OrderDAL(session)
@@ -30,7 +33,7 @@ async def _get_orders(
     page: int,
     sort_by_date: Optional[str],
     db: AsyncSession,
-) -> List[OrderInDB]:
+) -> List[ShowOrder]:
     async with db as session:
         async with session.begin():
             order_dal = OrderDAL(session)
@@ -44,7 +47,8 @@ async def _get_orders(
             return orders
 
 
-async def _get_order_by_id(order_id: UUID, db) -> Optional[OrderInDB]:
+async def _get_order_by_id(
+        order_id: UUID, db) -> Optional[ShowOrder]:
     async with db as session:
         async with session.begin():
             order_dal = OrderDAL(session)
