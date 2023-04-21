@@ -11,6 +11,7 @@ from src.users.router import users_router
 from src.licensor.router import licensor_router
 from src.releases.router import releases_router
 from src.tracks.router import tracks_router
+from src.orders.router import order_router
 
 
 # sentry_sdk.init(
@@ -32,6 +33,9 @@ main_api_router.include_router(
     releases_router, prefix="/releases", tags=["releases"],)
 main_api_router.include_router(
     tracks_router, prefix="/tracks", tags=["tracks"]
+)
+main_api_router.include_router(
+    order_router, prefix="/orders", tags=["orders"]
 )
 app.include_router(main_api_router)
 
