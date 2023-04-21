@@ -4,6 +4,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 from src.releases.models import ReleaseType
+from src.tracks.schemas import ShowTrack
 
 
 class TunedModel(BaseModel):
@@ -19,11 +20,12 @@ class ShowRelease(TunedModel):
     release_type: ReleaseType
     title: str
     artist: str
-    release_date: Optional[date]
+    release_date: date
     on_sale_date: date
     cover: str
     genre: str
     upc: Optional[str]
+    tracks: Optional[ShowTrack]
 
 
 class ReleaseCreate(BaseModel):

@@ -21,6 +21,7 @@ from src.licensor.models import Licensor
 from src.users.models import User, SignUpSource
 from src.releases.models import Release, ReleaseType
 from src.tracks.models import Track
+from src.orders.models import Order, OrderStatus
 target_metadata = Base.metadata
 # target_metadata = None
 
