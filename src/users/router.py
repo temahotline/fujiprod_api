@@ -1,6 +1,6 @@
 from uuid import UUID
 from logging import getLogger
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from src.users.actions import _create_new_user, _get_user_by_id
 from src.users.schemas import UserCreate, ShowUser
@@ -24,4 +24,7 @@ async def create_user(
 async def show_user(
         user_id: UUID,
         db: AsyncSession = Depends(get_db),) -> ShowUser:
-    return await _get_user_by_id(user_id, db)
+    user = await _get_user_by_id(user_id, db)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user

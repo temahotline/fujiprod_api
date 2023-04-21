@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from src.releases.actions import (_create_new_release,
                                   _get_release_by_id,
@@ -24,6 +24,10 @@ async def show_release(
     release_id: UUID,
     db: AsyncSession = Depends(get_db),
 ) -> ShowRelease:
+    release = await _get_release_by_id(release_id, db)
+    if not release:
+        raise HTTPException(
+            status_code=404, detail="Release not found")
     return await _get_release_by_id(release_id, db)
 
 
@@ -34,8 +38,12 @@ async def update_release_by_id(
         db: AsyncSession = Depends(get_db),
 ) -> UUID:
     updated_release_params = body.dict(exclude_unset=True)
-    return await _update_release(
+    update_release = await _update_release(
         updated_release_params=updated_release_params,
         release_id=release_id,
         db=db
     )
+    if not update_release:
+        raise HTTPException(
+            status_code=404, detail="Release not found")
+    return update_release

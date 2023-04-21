@@ -1,6 +1,6 @@
 from uuid import UUID
 from logging import getLogger
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from src.licensor.actions import (_create_new_licensor,
                                   _get_licensor_by_id,
@@ -26,7 +26,12 @@ async def create_licensor(
 async def show_licensor(
         licensor_id: UUID,
         db: AsyncSession = Depends(get_db),) -> ShowLicensor:
-    return await _get_licensor_by_id(licensor_id, db)
+    licensor = await _get_licensor_by_id(licensor_id, db)
+    if not licensor:
+        raise HTTPException(
+            status_code=404, detail="Licensor not found"
+        )
+    return licensor
 
 
 @licensor_router.patch("/{licensor_id}")
@@ -35,8 +40,13 @@ async def update_licensor_by_id(
         body:  UpdatedLicensorResponse,
         db: AsyncSession = Depends(get_db),) -> UUID:
     updated_licensor_params = body.dict(exclude_unset=True)
-    return await _update_licensor(
+    update_licensor = await _update_licensor(
         updated_licensor_params=updated_licensor_params,
         licensor_id=licensor_id,
         db=db
     )
+    if not update_licensor:
+        raise HTTPException(
+            status_code=404, detail="Licensor not found"
+        )
+    return update_licensor

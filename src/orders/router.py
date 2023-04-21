@@ -19,7 +19,7 @@ order_router = APIRouter()
 @order_router.get("/{order_id}", response_model=ShowOrder)
 async def get_order(order_id: UUID, db: AsyncSession = Depends(get_db)) -> Optional[ShowOrder]:
     order = await _get_order_by_id(order_id, db)
-    if order is None:
+    if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
 
