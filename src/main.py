@@ -2,6 +2,9 @@ import sentry_sdk
 import uvicorn
 
 from fastapi import FastAPI, APIRouter
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+from redis import asyncio as aioredis
 
 from src import settings
 from src.users.router import users_router
@@ -31,6 +34,12 @@ main_api_router.include_router(
     tracks_router, prefix="/tracks", tags=["tracks"]
 )
 app.include_router(main_api_router)
+
+
+@app.on_event("startup")
+async def startup_event():
+    redis = aioredis.from_url("redis://localhost", encoding="utf8", decode_responses=True)
+    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
 
 
 if __name__ == "__main__":

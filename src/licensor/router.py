@@ -38,5 +38,5 @@ async def update_licensor_by_id(
     return await _update_licensor(
         updated_licensor_params=updated_licensor_params,
         licensor_id=licensor_id,
-        session=db
+        db=db
     )

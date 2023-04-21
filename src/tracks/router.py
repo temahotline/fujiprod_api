@@ -37,5 +37,5 @@ async def update_track_by_id(
     return await _update_track(
         updated_track_params=updated_track_params,
         track_id=track_id,
-        session=db
+        db=db
     )

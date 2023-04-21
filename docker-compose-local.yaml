@@ -16,7 +16,7 @@ services:
       - custom
   app:
     container_name: "app"
-    image: temahotline/fujiprod_api:latest
+    build: .
     restart: always
     ports:
       - "8000:8000"

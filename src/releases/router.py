@@ -37,5 +37,5 @@ async def update_release_by_id(
     return await _update_release(
         updated_release_params=updated_release_params,
         release_id=release_id,
-        session=db
+        db=db
     )

@@ -15,4 +15,8 @@ passlib==1.7.4
 python-multipart==0.0.5
 bcrypt==4.0.1
 greenlet==2.0.2
+redis
+celery
+flower
 sentry-sdk[fastapi]
+fastapi-cache2[redis]

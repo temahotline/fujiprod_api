@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy import update, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.tracks.models import Track
+from src.tracks.models import  Track
 
 
 class TrackDAL:

@@ -29,3 +29,4 @@ class User(Base):
 
     licensors = relationship("Licensor", back_populates="user",)
     releases = relationship("Release", back_populates="user",)
+    orders = relationship("Order", back_populates="user")
