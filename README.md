@@ -8,7 +8,7 @@ Fujiprod API - это веб-приложение, разработанное с
 1. Поднимаем Docker-Compose 
 
 ```
-make up
+make rebuild
 ```
 
 2. Накатываем миграции
