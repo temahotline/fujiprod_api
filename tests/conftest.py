@@ -1,100 +1,63 @@
-import os
 import asyncio
-from typing import Generator, Any
-from uuid import UUID
+from typing import AsyncGenerator
 
 import pytest
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from fastapi.testclient import TestClient
+from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from starlette.testclient import TestClient
+from sqlalchemy.pool import NullPool
 
-from src import settings
-from src.main import app
 from src.database import get_db
-import asyncpg
+from src.main import app
+from src.database import Base
+from src.licensor.models import Licensor
+from src.users.models import User, SignUpSource
+from src.releases.models import Release, ReleaseType
+from src.tracks.models import Track
+from src.orders.models import Order, OrderStatus
 
 
-CLEAN_TABLES = [
-    "users",
-]
+metadata = Base.metadata
 
 
-@pytest.fixture(scope="session")
-def event_loop():
+# DATABASE
+DATABASE_URL_TEST = f"postgresql+asyncpg://postgres_test:postgres_test@0.0.0.0:5433/postgres_test"
+
+engine_test = create_async_engine(DATABASE_URL_TEST, poolclass=NullPool)
+async_session_maker = sessionmaker(engine_test, class_=AsyncSession, expire_on_commit=False)
+metadata.bind = engine_test
+
+
+async def override_get_async_session() -> AsyncGenerator[AsyncSession, None]:
+    async with async_session_maker() as session:
+        yield session
+
+app.dependency_overrides[get_db] = override_get_async_session
+
+
+@pytest.fixture(autouse=True, scope='session')
+async def prepare_database():
+    async with engine_test.begin() as conn:
+        await conn.run_sync(metadata.create_all)
+    yield
+    async with engine_test.begin() as conn:
+        await conn.run_sync(metadata.drop_all)
+
+
+# SETUP
+@pytest.fixture(scope='session')
+def event_loop(request):
+    """Create an instance of the default event loop for each test case."""
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
 
 
-@pytest.fixture(scope="session", autouse=True)
-async def run_migrations():
-    os.system("alembic init migrations")
-    os.system('alembic revision --autogenerate -m "test running migrations"')
-    os.system("alembic upgrade heads")
+client = TestClient(app)
 
 
 @pytest.fixture(scope="session")
-async def async_session_test():
-    engine = create_async_engine(settings.TEST_DATABASE_URL, future=True, echo=True)
-    async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
-    yield async_session
-
-
-@pytest.fixture(scope="function", autouse=True)
-async def clean_tables(async_session_test):
-    """Clean data in all tables before running test function"""
-    async with async_session_test() as session:
-        async with session.begin():
-            for table_for_cleaning in CLEAN_TABLES:
-                await session.execute(f"""TRUNCATE TABLE {table_for_cleaning};""")
-
-
-async def _get_test_db():
-    try:
-        # create async engine for interaction with database
-        test_engine = create_async_engine(settings.TEST_DATABASE_URL, future=True, echo=True)
-
-        # create session for the interaction with database
-        test_async_session = sessionmaker(test_engine, expire_on_commit=False, class_=AsyncSession)
-        yield test_async_session()
-    finally:
-        pass
-
-
-@pytest.fixture(scope="function")
-async def client() -> Generator[TestClient, Any, None]:
-    """
-    Create a new FastAPI TestClient that uses the `db_session` fixture to override
-    the `get_db` dependency that is injected into routes.
-    """
-
-    app.dependency_overrides[get_db] = _get_test_db
-    with TestClient(app) as client:
-        yield client
-
-
-@pytest.fixture(scope="session")
-async def asyncpg_pool():
-    pool = await asyncpg.create_pool("".join(settings.TEST_DATABASE_URL.split("+asyncpg")))
-    yield pool
-    pool.close()
-
-
-@pytest.fixture
-async def get_user_from_database(asyncpg_pool):
-
-    async def get_user_from_database_by_uuid(user_id: str):
-        async with asyncpg_pool.acquire() as connection:
-            return await connection.fetch("""SELECT * FROM users WHERE user_id = $1;""", user_id)
-
-    return get_user_from_database_by_uuid
-
-
-@pytest.fixture
-async def create_user_in_database(asyncpg_pool):
-
-    async def create_user_in_database(user_id: str, sign_up_source: str, id_on_source: str):
-        async with asyncpg_pool.acquire() as connection:
-            return await connection.execute("""INSERT INTO user (user_id, sign_up_source, id_on_source) VALUES ($1, $2, $3)""",
-                                            user_id, sign_up_source, id_on_source)
-    return create_user_in_database
+async def ac() -> AsyncGenerator[AsyncClient, None]:
+    async with AsyncClient(app=app, base_url="http://test") as ac:
+        yield ac

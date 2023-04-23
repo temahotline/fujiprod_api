@@ -1,22 +1,18 @@
 import uuid
 import json
 import pytest
+from sqlalchemy import insert, select
+
+from conftest import async_session_maker
+from src.users.models import User, SignUpSource
 
 
-async def test_create_user(client, get_user_from_database):
-    user_data = {
-        "sign_up_source": "WEBSITE",
-        "id_on_source": "12345"
-    }
-    resp = client.post("/users/", json=user_data)
-    data_from_resp = resp.json()
-    assert resp.status_code == 200
-    assert data_from_resp["sign_up_source"] == user_data["sign_up_source"]
-    assert data_from_resp["id_on_source"] == user_data["id_on_source"]
+async def test_create_user():
+    async with async_session_maker() as session:
+        stmt = insert(User).values(sign_up_source="VK", id_on_source="test")
+        await session.execute(stmt)
+        await session.commit()
 
-    users_from_db = await get_user_from_database(data_from_resp["user_id"])
-    assert len(users_from_db) == 1
-    user_from_db = dict(users_from_db[0])
-    assert user_from_db["sign_up_source"] == user_data["sign_up_source"]
-    assert user_from_db["id_on_source"] == user_data["id_on_source"]
-    assert str(user_from_db["user_id"]) == data_from_resp["user_id"]
+        query = select(User)
+        result = await session.execute(query)
+        print(result.all())

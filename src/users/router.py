@@ -10,7 +10,6 @@ from src.database import AsyncSession, get_db
 logger = getLogger(__name__)
 
 users_router = APIRouter()
-licensor_router = APIRouter()
 
 
 @users_router.post("/", response_model=ShowUser)
