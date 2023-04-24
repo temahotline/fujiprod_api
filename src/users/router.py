@@ -1,6 +1,10 @@
 from uuid import UUID
 from logging import getLogger
+from typing import Union
+
+from asyncpg import InvalidTextRepresentationError
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.exc import DBAPIError
 
 from src.users.actions import _create_new_user, _get_user_by_id
 from src.users.schemas import UserCreate, ShowUser
@@ -15,8 +19,16 @@ users_router = APIRouter()
 @users_router.post("/", response_model=ShowUser)
 async def create_user(
         body: UserCreate,
-        db: AsyncSession = Depends(get_db),) -> ShowUser:
-    return await _create_new_user(body, db)
+        db: AsyncSession = Depends(get_db),
+) -> ShowUser:
+    try:
+        return await _create_new_user(body, db)
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid data"
+        )
 
 
 @users_router.get("/{user_id}", response_model=ShowUser)

@@ -3,16 +3,80 @@ import json
 import pytest
 from sqlalchemy import insert, select
 
-from conftest import async_session_maker
+from conftest import async_session_maker, client
 from src.users.models import User, SignUpSource
 
 
 async def test_create_user():
+    user_data = {
+        "sign_up_source": "VK",
+        "id_on_source": "test"
+    }
+    response = client.post("/users/", content=json.dumps(user_data))
+    response_data = response.json()
+    assert response.status_code == 200
+    assert response_data["sign_up_source"] == user_data["sign_up_source"]
+    assert response_data["id_on_source"] == user_data["id_on_source"]
+    assert uuid.UUID(response_data["user_id"])
     async with async_session_maker() as session:
-        stmt = insert(User).values(sign_up_source="VK", id_on_source="test")
-        await session.execute(stmt)
-        await session.commit()
+        async with session.begin():
+            stmt = select(User).where(User.user_id == response_data["user_id"])
+            result = await session.execute(stmt)
+            user = result.scalar()
+            assert user is not None
+            assert user.sign_up_source == SignUpSource.VK
+            assert user.id_on_source == user_data["id_on_source"]
+            assert user.user_id == uuid.UUID(response_data["user_id"])
 
-        query = select(User)
-        result = await session.execute(query)
-        print(result.all())
+
+async def test_create_user_with_invalid_sign_up_source():
+    user_data = {
+        "sign_up_source": "invalid",
+        "id_on_source": "test"
+    }
+    response = client.post("/users/", json=user_data)
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Invalid data"
+
+
+async def test_create_user_with_invalid_id_on_source():
+    user_data = {
+        "sign_up_source": "VK",
+        "id_on_source": {1: "test"}
+    }
+    response = client.post("/users/", json=user_data)
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["msg"] == "str type expected"
+
+
+async def test_get_user_by_id():
+    user_data = {
+        "sign_up_source": "VK",
+        "id_on_source": "test"
+    }
+    response = client.post("/users/", json=user_data)
+    response_data = response.json()
+    user_id = response_data["user_id"]
+    response = client.get(f"/users/{user_id}")
+    response_data = response.json()
+    assert response.status_code == 200
+    assert response_data["sign_up_source"] == user_data["sign_up_source"]
+    assert response_data["id_on_source"] == user_data["id_on_source"]
+    assert response_data["user_id"] == user_id
+
+
+async def test_get_user_by_invalid_id():
+    user_id = uuid.uuid4()
+    response = client.get(f"/users/{user_id}")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "User not found"
+
+
+async def test_get_user_by_invalid_id_format():
+    user_id = "invalid"
+    response = client.get(f"/users/{user_id}")
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["msg"] == "value is not a valid uuid"
+
+
+

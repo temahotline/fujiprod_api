@@ -7,6 +7,7 @@ async def _create_new_user(body: UserCreate, db) -> ShowUser:
     async with db as session:
         async with session.begin():
             user_dal = UserDAL(session)
+
             user = await user_dal.create_user(
                 sign_up_source=body.sign_up_source,
                 id_on_source=body.id_on_source,
