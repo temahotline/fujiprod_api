@@ -2,7 +2,7 @@ import uuid
 from typing import Optional, Union
 from uuid import UUID
 from datetime import date
-from sqlalchemy import update, select
+from sqlalchemy import update, select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.releases.models import Release, ReleaseType
@@ -63,3 +63,38 @@ class ReleaseDAL:
         if release_row is not None:
             return release_row[0]
         return None
+
+    async def get_releases(
+            self,
+            user_id: Optional[UUID] = None,
+            licensor_id: Optional[UUID] = None,
+            title: Optional[str] = None,
+            artist: Optional[str] = None,
+            genre: Optional[str] = None,
+            sort_by_release_date: Optional[str] = None,
+            sort_by_on_sale_date: Optional[str] = None
+    ) -> list[Release]:
+        query = select(Release)
+        conditions = []
+        if user_id is not None:
+            conditions.append(Release.user_id == user_id)
+        if licensor_id is not None:
+            conditions.append(Release.licensor_id == licensor_id)
+        if title is not None:
+            conditions.append(Release.title == title)
+        if artist is not None:
+            conditions.append(Release.artist == artist)
+        if genre is not None:
+            conditions.append(Release.genre == genre)
+
+        if conditions:
+            query = query.where(and_(*conditions))
+
+        if sort_by_release_date:
+            if sort_by_release_date.lower() == 'asc':
+                query = query.order_by(Release.release_date.asc())
+            elif sort_by_release_date.lower() == 'desc':
+                query = query.order_by(Release.release_date.desc())
+        pass
+
+
