@@ -61,3 +61,13 @@ client = TestClient(app)
 async def ac() -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(app=app, base_url="http://test") as ac:
         yield ac
+
+
+async def create_user(
+        session: AsyncSession,
+        sign_up_source: SignUpSource,
+        id_on_source: str) -> User:
+    user = User(sign_up_source=sign_up_source, id_on_source=id_on_source)
+    session.add(user)
+    await session.commit()
+    return user

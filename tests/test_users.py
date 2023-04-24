@@ -1,7 +1,6 @@
 import uuid
 import json
-import pytest
-from sqlalchemy import insert, select
+from sqlalchemy import select
 
 from conftest import async_session_maker, client
 from src.users.models import User, SignUpSource
@@ -79,4 +78,18 @@ async def test_get_user_by_invalid_id_format():
     assert response.json()["detail"][0]["msg"] == "value is not a valid uuid"
 
 
-
+async def test_create_two_users_with_same_data():
+    user_data = {
+        "sign_up_source": "VK",
+        "id_on_source": "test"
+    }
+    response1 = client.post("/users/", json=user_data)
+    response1_data = response1.json()
+    assert response1.status_code == 200
+    assert response1_data["sign_up_source"] == user_data["sign_up_source"]
+    assert response1_data["id_on_source"] == user_data["id_on_source"]
+    assert uuid.UUID(response1_data["user_id"])
+    response2 = client.post("/users/", json=user_data)
+    response2_data = response2.json()
+    assert response2.status_code == 200
+    assert response1_data["user_id"] == response2_data["user_id"]
