@@ -1,9 +1,10 @@
+from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 
 from src.releases.actions import (_create_new_release,
                                   _get_release_by_id,
-                                  _update_release)
+                                  _update_release, _get_releases)
 from src.releases.schemas import (ReleaseCreate, ShowRelease,
                                   UpdatedReleaseResponse)
 from src.database import AsyncSession, get_db
@@ -47,3 +48,28 @@ async def update_release_by_id(
         raise HTTPException(
             status_code=404, detail="Release not found")
     return update_release
+
+
+@releases_router.get("/", response_model=List[ShowRelease])
+async def get_releases_list(
+    user_id: Optional[UUID] = None,
+    licensor_id: Optional[UUID] = None,
+    title: Optional[str] = None,
+    artist: Optional[str] = None,
+    genre: Optional[str] = None,
+    sort_by_release_date: Optional[str] = None,
+    sort_by_on_sale_date: Optional[str] = None,
+    page: int = 1,
+    db: AsyncSession = Depends(get_db),
+) -> List[ShowRelease]:
+    return await _get_releases(
+        user_id=user_id,
+        licensor_id=licensor_id,
+        title=title,
+        artist=artist,
+        genre=genre,
+        sort_by_release_date=sort_by_release_date,
+        sort_by_on_sale_date=sort_by_on_sale_date,
+        page=page,
+        db=db
+)

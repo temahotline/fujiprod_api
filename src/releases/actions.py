@@ -44,3 +44,29 @@ async def _update_release(
             )
             if updated_release_id is not None:
                 return updated_release_id
+
+
+async def _get_releases(
+        user_id: UUID,
+        licensor_id: UUID,
+        title: str,
+        artist: str,
+        genre: str,
+        sort_by_release_date: str,
+        sort_by_on_sale_date: str,
+        page: int,
+        db) -> list[ShowRelease]:
+    async with db as session:
+        async with session.begin():
+            release_dal = ReleaseDAL(session)
+            releases = await release_dal.get_releases(
+                user_id=user_id,
+                licensor_id=licensor_id,
+                title=title,
+                artist=artist,
+                genre=genre,
+                sort_by_release_date=sort_by_release_date,
+                sort_by_on_sale_date=sort_by_on_sale_date,
+                page=page
+            )
+            return releases
