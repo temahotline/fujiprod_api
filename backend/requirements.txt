@@ -20,3 +20,5 @@ celery
 flower
 sentry-sdk[fastapi]
 fastapi-cache2[redis]
+fastapi-admin
+fastapi-users[sqlalchemy]

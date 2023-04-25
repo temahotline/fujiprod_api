@@ -2,7 +2,7 @@ import uuid
 import json
 from sqlalchemy import select
 
-from conftest import async_session_maker, client
+from tests.conftest import async_session_maker, client
 from src.users.models import User, SignUpSource
 
 
