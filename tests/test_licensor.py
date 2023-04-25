@@ -1,3 +1,5 @@
+import json
+
 from sqlalchemy import select
 
 from src.licensor.models import Licensor
@@ -13,8 +15,9 @@ async def test_create_new_licensor(user):
             "birthday": "2000-01-01",
             "passport_number": "test",
             "passport_issue_date": "2000-01-01",
-            "registration": "test",
+            "registration": "test"
         }
+        print(json.dumps(licensor_data))
         response = client.post("/licensor/", json=licensor_data)
         assert response.status_code == 200
         async with session.begin():
@@ -39,7 +42,7 @@ async def test_get_licensor_by_id(user):
             "birthday": "2000-01-01",
             "passport_number": "test",
             "passport_issue_date": "2000-01-01",
-            "registration": "test",
+            "registration": "test"
         }
         response = client.post("/licensor/", json=licensor_data)
         licensor_id = response.json()["licensor_id"]
@@ -64,7 +67,7 @@ async def test_update_licensor(user):
             "birthday": "2000-01-01",
             "passport_number": "test",
             "passport_issue_date": "2000-01-01",
-            "registration": "test",
+            "registration": "test"
         }
         response = client.post("/licensor/", json=licensor_data)
         licensor_id = response.json()["licensor_id"]
@@ -72,7 +75,7 @@ async def test_update_licensor(user):
             "full_name": "new_test",
             "passport_number": "new_test",
             "passport_issue_date": "2001-01-01",
-            "registration": "new_test",
+            "registration": "new_test"
         }
         response = client.patch(f"/licensor/{licensor_id}", json=new_licensor_data)
         assert response.status_code == 200

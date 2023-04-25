@@ -1,6 +1,6 @@
 from uuid import UUID
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, conint
 
 
 class TunedModel(BaseModel):
@@ -32,8 +32,8 @@ class TrackCreate(BaseModel):
     music_writer: str
     text_writer: str
     track: str
-    number_on_tracklist: int
-    tiktok_timing: int
+    number_on_tracklist: conint(ge=1)
+    tiktok_timing: conint(ge=0)
     explicit_content: bool
     text: Optional[str]
     karaoke_text: Optional[str]

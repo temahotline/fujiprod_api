@@ -1,7 +1,7 @@
 from uuid import UUID
 from datetime import date
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 from src.releases.models import ReleaseType
 from src.tracks.schemas import ShowTrack
@@ -39,6 +39,13 @@ class ReleaseCreate(BaseModel):
     cover: str
     genre: str
     upc: Optional[str]
+
+    @validator("release_date", always=True, pre=True)
+    def validate_release_date(cls, release_date, values):
+        on_sale_date = values.get("on_sale_date")
+        if release_date is not None and release_date > on_sale_date:
+            raise ValueError("")
+        return release_date
 
 
 class UpdatedReleaseResponse(BaseModel):

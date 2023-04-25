@@ -19,7 +19,7 @@ from src.orders.router import order_router
 #     traces_sample_rate=1.0,
 # )
 
-print(f"REAL_DATABASE_URL: {settings.REAL_DATABASE_URL}")
+# print(f"REAL_DATABASE_URL: {settings.REAL_DATABASE_URL}")
 
 app = FastAPI(title="fujiprod_api")
 
