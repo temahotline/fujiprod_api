@@ -1,5 +1,7 @@
 import asyncio
+from datetime import date
 from typing import AsyncGenerator
+from uuid import UUID
 
 import pytest
 from fastapi.testclient import TestClient
@@ -63,11 +65,85 @@ async def ac() -> AsyncGenerator[AsyncClient, None]:
         yield ac
 
 
-async def create_user(
-        session: AsyncSession,
-        sign_up_source: SignUpSource,
-        id_on_source: str) -> User:
-    user = User(sign_up_source=sign_up_source, id_on_source=id_on_source)
-    session.add(user)
-    await session.commit()
-    return user
+@pytest.fixture
+async def user():
+    user_data = {
+        "sign_up_source": SignUpSource.VK,
+        "id_on_source": "test"
+    }
+    resp_user = client.post("/users/", json=user_data)
+    assert resp_user.status_code == 200
+    user_id = resp_user.json()["user_id"]
+    return user_data, user_id
+
+
+@pytest.fixture
+async def licensor(user):
+    user_data, user_id = user
+    licensor_data = {
+        "user_id": user_id,
+        "full_name": "test",
+        "birthday": "2000-01-01",
+        "passport_number": "test",
+        "passport_issue_date": "2000-01-01",
+        "registration": "test"
+    }
+    resp_licensor = client.post("/licensors/", json=licensor_data)
+    assert resp_licensor.status_code == 200
+    licensor_id = resp_licensor.json()["licensor_id"]
+    return licensor_data, licensor_id
+
+
+@pytest.fixture
+async def release(licensor, user):
+    user_data, user_id = user
+    licensor_data, licensor_id = licensor
+    release_data = {
+        "user_id": user_id,
+        "licensor_id": licensor_id,
+        "release_type": "SINGLE",
+        "title": "test",
+        "artist": "test",
+        "release_date": "2023-08-24",
+        "on_sale_date": "2023-08-24",
+        "cover": "test",
+        "genre": "test"
+    }
+    resp_release = client.post("/releases/", json=release_data)
+    assert resp_release.status_code == 200
+    release_id = resp_release.json()["release_id"]
+    return release_data, release_id
+
+
+@pytest.fixture
+async def track(release):
+    release_data, release_id = release
+    track_data = {
+        "release_id": release_id,
+        "title": "string",
+        "artist": "string",
+        "music_writer": "string",
+        "text_writer": "string",
+        "track": "string",
+        "number_on_tracklist": 1,
+        "tiktok_timing": 1,
+        "explicit_content": True,
+        "text": "string",
+        "karaoke_text": "string",
+        }
+    resp_track = client.post("/tracks/", json=track_data)
+    assert resp_track.status_code == 200
+    track_id = resp_track.json()["track_id"]
+    return track_data, track_id
+
+
+@pytest.fixture
+async def order(user):
+    user_data, user_id = user
+    order_data = {
+        "user_id": user_id
+    }
+    resp_order = client.post("/orders/", json=order_data)
+    assert resp_order.status_code == 200
+    order_id = resp_order.json()["order_id"]
+    return order_data, order_id

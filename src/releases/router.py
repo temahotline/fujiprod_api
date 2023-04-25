@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -72,4 +72,4 @@ async def get_releases_list(
         sort_by_on_sale_date=sort_by_on_sale_date,
         page=page,
         db=db
-)
+    )
