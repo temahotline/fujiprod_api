@@ -1,9 +1,10 @@
 from typing import List, Optional
 from uuid import UUID
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.orders.dals import OrderDAL
 from src.orders.schemas import OrderCreate, OrderUpdate, ShowOrder
 from src.orders.models import OrderStatus
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def _create_new_order(

@@ -1,5 +1,3 @@
-import json
-
 from sqlalchemy import select
 
 from src.licensor.models import Licensor
@@ -7,17 +5,17 @@ from tests.conftest import async_session_maker, client
 
 
 async def test_create_new_licensor(user):
-    user_data, user_id = user
+    user = user
+    user_id = str(user.user_id)
     async with async_session_maker() as session:
         licensor_data = {
-            "user_id": str(user_id),
+            "user_id": user_id,
             "full_name": "test",
             "birthday": "2000-01-01",
             "passport_number": "test",
             "passport_issue_date": "2000-01-01",
             "registration": "test"
         }
-        print(json.dumps(licensor_data))
         response = client.post("/licensor/", json=licensor_data)
         assert response.status_code == 200
         async with session.begin():
@@ -34,32 +32,33 @@ async def test_create_new_licensor(user):
 
 
 async def test_get_licensor_by_id(user):
-    user_data, user_id = user
-    async with async_session_maker() as session:
-        licensor_data = {
-            "user_id": str(user_id),
-            "full_name": "test",
-            "birthday": "2000-01-01",
-            "passport_number": "test",
-            "passport_issue_date": "2000-01-01",
-            "registration": "test"
-        }
-        response = client.post("/licensor/", json=licensor_data)
-        licensor_id = response.json()["licensor_id"]
-        response = client.get(f"/licensor/{licensor_id}")
-        response_data = response.json()
-        assert response.status_code == 200
-        assert response_data["user_id"] == licensor_data["user_id"]
-        assert response_data["full_name"] == licensor_data["full_name"]
-        assert response_data["birthday"] == licensor_data["birthday"]
-        assert response_data["passport_number"] == licensor_data["passport_number"]
-        assert response_data["passport_issue_date"] == licensor_data["passport_issue_date"]
-        assert response_data["registration"] == licensor_data["registration"]
-        assert response_data["licensor_id"] == licensor_id
+    user = user
+    user_id = str(user.user_id)
+    licensor_data = {
+        "user_id": user_id,
+        "full_name": "test",
+        "birthday": "2000-01-01",
+        "passport_number": "test",
+        "passport_issue_date": "2000-01-01",
+        "registration": "test"
+    }
+    response = client.post("/licensor/", json=licensor_data)
+    licensor_id = response.json()["licensor_id"]
+    response = client.get(f"/licensor/{licensor_id}")
+    response_data = response.json()
+    assert response.status_code == 200
+    assert response_data["user_id"] == licensor_data["user_id"]
+    assert response_data["full_name"] == licensor_data["full_name"]
+    assert response_data["birthday"] == licensor_data["birthday"]
+    assert response_data["passport_number"] == licensor_data["passport_number"]
+    assert response_data["passport_issue_date"] == licensor_data["passport_issue_date"]
+    assert response_data["registration"] == licensor_data["registration"]
+    assert response_data["licensor_id"] == licensor_id
 
 
 async def test_update_licensor(user):
-    user_data, user_id = user
+    user = user
+    user_id = str(user.user_id)
     async with async_session_maker() as session:
         licensor_data = {
             "user_id": str(user_id),
