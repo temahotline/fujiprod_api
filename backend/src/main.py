@@ -1,7 +1,5 @@
-import sentry_sdk
 import uvicorn
-import sys
-from pathlib import Path
+
 
 from fastapi import FastAPI, APIRouter
 from fastapi_cache import FastAPICache
@@ -20,12 +18,6 @@ from src.orders.router import order_router
 #     dsn=settings.SENTRY_URL,
 #     traces_sample_rate=1.0,
 # )
-
-
-PROJECT_ROOT = Path("/Users/artem/Dev/fujiprod_api/backend").resolve()
-
-
-sys.path.insert(0, str(PROJECT_ROOT))
 
 
 app = FastAPI(title="fujiprod_api")

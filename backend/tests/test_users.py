@@ -83,13 +83,13 @@ async def test_create_two_users_with_same_data():
         "sign_up_source": "VK",
         "id_on_source": "test"
     }
-    response1 = client.post("/users/", json=user_data)
-    response1_data = response1.json()
-    assert response1.status_code == 200
-    assert response1_data["sign_up_source"] == user_data["sign_up_source"]
-    assert response1_data["id_on_source"] == user_data["id_on_source"]
-    assert uuid.UUID(response1_data["user_id"])
-    response2 = client.post("/users/", json=user_data)
-    response2_data = response2.json()
-    assert response2.status_code == 200
-    assert response1_data["user_id"] == response2_data["user_id"]
+    response_first = client.post("/users/", json=user_data)
+    response_first_data = response_first.json()
+    assert response_first.status_code == 200
+    assert response_first_data["sign_up_source"] == user_data["sign_up_source"]
+    assert response_first_data["id_on_source"] == user_data["id_on_source"]
+    assert uuid.UUID(response_first_data["user_id"])
+    response_second = client.post("/users/", json=user_data)
+    response_second_data = response_second.json()
+    assert response_second.status_code == 200
+    assert response_first_data["user_id"] == response_second_data["user_id"]

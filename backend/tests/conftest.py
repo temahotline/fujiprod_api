@@ -6,6 +6,7 @@ from uuid import UUID
 import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
+from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
@@ -67,83 +68,130 @@ async def ac() -> AsyncGenerator[AsyncClient, None]:
 
 @pytest.fixture
 async def user():
-    user_data = {
-        "sign_up_source": SignUpSource.VK,
-        "id_on_source": "test"
-    }
-    resp_user = client.post("/users/", json=user_data)
-    assert resp_user.status_code == 200
-    user_id = resp_user.json()["user_id"]
-    return user_data, user_id
+    async def create_user():
+        async with async_session_maker() as session:
+            user = User(
+                sign_up_source=SignUpSource.VK,
+                id_on_source="test"
+            )
+            session.add(user)
+            await session.commit()
+
+            async with async_session_maker() as new_session:
+                stmt = select(User).where(
+                    and_(User.sign_up_source == SignUpSource.VK,
+                         User.id_on_source == "test")
+                )
+                res = await new_session.execute(stmt)
+                user = res.scalar()
+                return user
+
+    created_user = await create_user()
+    yield created_user
 
 
 @pytest.fixture
 async def licensor(user):
-    user_data, user_id = user
-    licensor_data = {
-        "user_id": user_id,
-        "full_name": "test",
-        "birthday": "2000-01-01",
-        "passport_number": "test",
-        "passport_issue_date": "2000-01-01",
-        "registration": "test"
-    }
-    resp_licensor = client.post("/licensors/", json=licensor_data)
-    assert resp_licensor.status_code == 200
-    licensor_id = resp_licensor.json()["licensor_id"]
-    return licensor_data, licensor_id
+    async def create_licensor():
+        async with async_session_maker() as session:
+            licensor = Licensor(
+                user_id=user.user_id,
+                full_name="test",
+                birthday=date(2000, 1, 1),
+                passport_number="test",
+                passport_issue_date=date(2000, 1, 1),
+                registration="test"
+            )
+            session.add(licensor)
+            await session.commit()
+
+            async with async_session_maker() as new_session:
+                stmt = select(Licensor).where(
+                    Licensor.user_id == user.user_id)
+                res = await new_session.execute(stmt)
+                licensor = res.scalar()
+                return licensor
+
+    created_licensor = await create_licensor()
+    yield created_licensor
 
 
 @pytest.fixture
-async def release(licensor, user):
-    user_data, user_id = user
-    licensor_data, licensor_id = licensor
-    release_data = {
-        "user_id": user_id,
-        "licensor_id": licensor_id,
-        "release_type": "SINGLE",
-        "title": "test",
-        "artist": "test",
-        "release_date": "2023-08-24",
-        "on_sale_date": "2023-08-24",
-        "cover": "test",
-        "genre": "test"
-    }
-    resp_release = client.post("/releases/", json=release_data)
-    assert resp_release.status_code == 200
-    release_id = resp_release.json()["release_id"]
-    return release_data, release_id
+async def release(user, licensor):
+    async def create_release():
+        async with async_session_maker() as session:
+            release = Release(
+                user_id=user.user_id,
+                licensor_id=licensor.licensor_id,
+                release_type=ReleaseType.SINGLE,
+                title="test",
+                artist="test",
+                release_date=date(2023, 1, 1),
+                on_sale_date=date(2023, 1, 1),
+                cover="test",
+                genre="test"
+            )
+            session.add(release)
+            await session.commit()
+
+            async with async_session_maker() as new_session:
+                stmt = select(Release).where(
+                    Release.user_id == user.user_id)
+                res = await new_session.execute(stmt)
+                release = res.scalar()
+                return release
+
+    created_release = await create_release()
+    yield created_release
 
 
 @pytest.fixture
 async def track(release):
-    release_data, release_id = release
-    track_data = {
-        "release_id": release_id,
-        "title": "string",
-        "artist": "string",
-        "music_writer": "string",
-        "text_writer": "string",
-        "track": "string",
-        "number_on_tracklist": 1,
-        "tiktok_timing": 1,
-        "explicit_content": True,
-        "text": "string",
-        "karaoke_text": "string",
-        }
-    resp_track = client.post("/tracks/", json=track_data)
-    assert resp_track.status_code == 200
-    track_id = resp_track.json()["track_id"]
-    return track_data, track_id
+    async def create_track():
+        async with async_session_maker() as session:
+            track = Track(
+                release_id=release.release_id,
+                title="test",
+                artist="test",
+                music_writer="test",
+                text_writer="test",
+                track="test",
+                number_on_tracklist=1,
+                tiktok_timing=1,
+                explicit_content=True,
+                text="test",
+                karaoke_text="test"
+            )
+            session.add(track)
+            await session.commit()
+
+            async with async_session_maker() as new_session:
+                stmt = select(Track).where(
+                    Track.release_id == release.release_id)
+                res = await new_session.execute(stmt)
+                track = res.scalar()
+                return track
+
+    created_track = await create_track()
+    yield created_track
 
 
 @pytest.fixture
 async def order(user):
-    user_data, user_id = user
-    order_data = {
-        "user_id": user_id
-    }
-    resp_order = client.post("/orders/", json=order_data)
-    assert resp_order.status_code == 200
-    order_id = resp_order.json()["order_id"]
-    return order_data, order_id
+    async def create_order():
+        async with async_session_maker() as session:
+            order = Order(
+                user_id=user.user_id,
+            )
+            session.add(order)
+            await session.commit()
+
+            async with async_session_maker() as new_session:
+                stmt = select(Order).where(
+                    Order.user_id == user.user_id)
+                res = await new_session.execute(stmt)
+                order = res.scalar()
+                return order
+
+    created_order = await create_order()
+    yield created_order

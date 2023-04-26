@@ -1,4 +1,5 @@
 from uuid import UUID
+
 from src.users.dals import UserDAL
 from src.users.schemas import UserCreate, ShowUser
 
