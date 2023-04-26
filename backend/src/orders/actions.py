@@ -8,12 +8,12 @@ from src.orders.models import OrderStatus
 
 
 async def _create_new_order(
-        body: OrderCreate, db: AsyncSession) -> UUID:
+        body: OrderCreate, db: AsyncSession) -> ShowOrder:
     async with db as session:
         async with session.begin():
             order_dal = OrderDAL(session)
             order = await order_dal.create_order(user_id=body.user_id)
-            return order
+            return ShowOrder(**order.__dict__)
 
 
 async def _update_order_by_id(

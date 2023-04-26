@@ -22,7 +22,7 @@ class OrderDAL:
         )
         self.db_session.add(new_order)
         await self.db_session.flush()
-        return new_order.order_id
+        return new_order
 
     async def get_order_by_id(
             self, order_id: UUID) -> Union[Order, None]:
